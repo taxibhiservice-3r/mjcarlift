@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { site } from "@/lib/site";
+import { baseMetadata } from "@/lib/seo";
+import { buildLocalBusiness, buildWebSite, buildGraph } from "@/lib/schema";
+import JsonLd from "@/components/seo/JsonLd";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import StickyActionBar from "@/components/layout/StickyActionBar";
@@ -11,31 +13,24 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
   weight: ["400", "500", "600", "700"],
+  preload: true,
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
-  title: {
-    default: `${site.name} | Dubai to Abu Dhabi Ride Service`,
-    template: `%s | ${site.name}`,
-  },
-  description: site.description,
-  openGraph: {
-    siteName: site.name,
-    type: "website",
-    locale: "en_AE",
-  },
-  twitter: { card: "summary_large_image" },
-  alternates: { canonical: "/" },
-};
+export const metadata: Metadata = baseMetadata;
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const siteSchema = buildGraph([buildLocalBusiness(), buildWebSite()]);
+
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
+      <head>
+        {/* Site-wide JSON-LD: LocalBusiness + WebSite (always present) */}
+        <JsonLd data={siteSchema} />
+      </head>
       <body className="min-h-full flex flex-col has-action-bar">
         <a href="#main-content" className="skip-link">
           Skip to main content
